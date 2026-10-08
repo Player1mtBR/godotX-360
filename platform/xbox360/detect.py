@@ -85,7 +85,7 @@ def configure(env):
 
             # Xenon application linker configuration.
             "-n",
-            "-T" + os.path.join(devkit, "app.lds"),
+            "-T" + os.path.join(os.getcwd(), "platform", "xbox360", "app.lds"),
 
             # Force Xenon startup/runtime objects out of libxenon.a.
             "-u", "read",

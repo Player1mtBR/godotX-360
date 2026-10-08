@@ -4,5 +4,5 @@ Import("env")
 
 prog = env.add_program(
     "#bin/godot_xbox360",
-    ["godot_xbox360.cpp"],
+    ["godot_xbox360.cpp", "os_xbox360.cpp"],
 )

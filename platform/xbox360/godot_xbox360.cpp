@@ -1,13 +1,14 @@
 #include <stdio.h>
-#include <stdbool.h>
 
 #include <console/console.h>
-#include <input/input.h>
 #include <usb/usbmain.h>
 #include <xenon_soc/xenon_power.h>
 #include <xenos/xenos.h>
 
-int main() {
+#include "main/main.h"
+#include "os_xbox360.h"
+
+int main(int argc, char *argv[]) {
 	xenos_init(VIDEO_MODE_AUTO);
 	console_init();
 
@@ -17,25 +18,30 @@ int main() {
 	usb_do_poll();
 
 	console_clrscr();
+	printf("Xbox 360: libxenon initialized\n");
 
-	printf("Godot Xbox 360 platform test\n");
-	printf("============================\n\n");
-	printf("libxenon initialized successfully.\n");
-	printf("Godot Xenon ELF is running.\n\n");
-	printf("HELL YEAH!");
-	printf("Press Y to exit.\n");
+	OS_Xbox360 os;
+	printf("Xbox 360: OS constructed\n");
 
-	struct controller_data_s pad;
+	const char *exec_path = argc > 0 && argv[0] ? argv[0] : "godot_xbox360";
+	const int argument_count = argc > 0 ? argc - 1 : 0;
+	char **arguments = argc > 0 ? &argv[1] : nullptr;
 
-	while (true) {
-		usb_do_poll();
-
-		if (get_controller_data(&pad, 0)) {
-			if (pad.y) {
-				return 0;
-			}
+	printf("Xbox 360: Main::setup\n");
+	Error error = Main::setup(exec_path, argument_count, arguments);
+	if (error != OK) {
+		if (error == ERR_HELP) {
+			return 0;
 		}
+		return 255;
 	}
 
-	return 0;
+	printf("Xbox 360: Main::start\n");
+	if (Main::start()) {
+		printf("Xbox 360: entering OS::run\n");
+		os.run();
+	}
+
+	Main::cleanup();
+	return os.get_exit_code();
 }
